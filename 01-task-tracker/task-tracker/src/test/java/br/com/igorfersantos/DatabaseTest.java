@@ -72,8 +72,9 @@ class DatabaseTest {
     @Order(2)
     void initializeDatabase_shouldCreateValidDatabaseFile_whenDatabaseDoesNotExist()
             throws IOException {
-        if(Files.exists(databaseFile.toPath()))
+        if (Files.exists(databaseFile.toPath())) {
             fail("Database file should not exist yet");
+        }
 
         database.initializeDatabase();
         final boolean fileExists = Files.exists(databaseFile.toPath());
@@ -92,10 +93,11 @@ class DatabaseTest {
     @Test
     @Order(3)
     void loadDatabase_shouldPopulateTheDatabase_whenNotLoadedYet() {
-        if (database.getDatabaseTasks() != null)
+        if (database.getDatabaseTasks() != null) {
             fail("Should not be loaded yet");
+        }
 
-        database.loadDatabase();
+        assertDoesNotThrow(() -> database.loadDatabase());
         final List<Task> tasks = database.getDatabaseTasks();
 
         Task t1 = new Task(
@@ -132,10 +134,10 @@ class DatabaseTest {
         Task task = new Task("Test my java program", Status.TODO);
         // TODO: Integrade TaskDAO to create the task here later
         database.getDatabaseTasks().add(task);
-        assertTrue(database.persistDatabase());
+        assertDoesNotThrow(() -> database.persistDatabase());
         // Clear so we can load again to check if it was correctly persisted
         database.getDatabaseTasks().clear();
-        database.loadDatabase();
+        assertDoesNotThrow(() -> database.loadDatabase());
 
         List<Task> tasks = database.getDatabaseTasks();
         assertEquals(4, tasks.size());
@@ -168,16 +170,10 @@ class DatabaseTest {
                 LocalDateTime.ofInstant(Instant.parse("2025-09-13T12:05:00Z"), ZoneOffset.UTC)
         );
 
-        List<Task> tasksToCompareTo = new ArrayList<>(List.of(t1,t2,t3));
+        List<Task> tasksToCompareTo = new ArrayList<>(List.of(t1, t2, t3));
 
         for (int i = 0; i <= 2; i++) {
-           assertEquals(tasks.get(i), tasksToCompareTo.get(i));
+            assertEquals(tasks.get(i), tasksToCompareTo.get(i));
         }
     }
-
-    @Test
-    @Order(6)
-    void getDatabase() {
-    }
-
 }

@@ -1,10 +1,6 @@
 package br.com.igorfersantos;
 
-import br.com.igorfersantos.domain.task.Task;
-
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -16,7 +12,7 @@ public class App {
             
             Adding a new task
                 add <task-description>
-           
+            
             Listing tasks
                 list
                 list [todo|in-progress|done]
@@ -54,20 +50,34 @@ public class App {
             task-cli list in-progress
             """;
 
-
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println(USAGE_TEXT);
+            return;
+        }
+        final Database database = new Database();
+
+        if (!database.checkDatabaseExists()) {
+            System.out.println("The database will be created");
+            try {
+                database.initializeDatabase();
+                database.loadDatabase();
+            } catch (IOException e) {
+                System.out.println(
+                        "There was an error while trying to create the tasks file: " +
+                                e.getMessage());
+                System.out.println("The application will not proceed.");
+                return;
+            }
         }
 
-//        if (!Database.checkDatabaseExists()) {
-//            System.out.println("The database will be created");
-//            Database.initializeDatabase();
-//        }
-//        Database.loadDatabase();
-//
-//        // do the stuff
-//
-//        final boolean hasBeenSucessefullyPersisted = Database.persistDatabase();
+        // do the stuff
+
+        try {
+            database.persistDatabase();
+        } catch (IOException e) {
+            System.out.println("There was an error while persisting the tasks: " +
+                    e.getMessage());
+        }
     }
 }

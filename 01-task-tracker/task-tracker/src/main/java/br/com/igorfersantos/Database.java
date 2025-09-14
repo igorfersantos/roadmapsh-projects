@@ -15,8 +15,8 @@ import java.util.List;
 
 public class Database {
     private final String databaseFilename = "tasks.json";
-    private List<Task> databaseTasks;
     private final ObjectMapper objectMapper;
+    private List<Task> databaseTasks;
 
     public Database() {
         this.objectMapper = JsonMapper.builder()
@@ -28,50 +28,23 @@ public class Database {
         return databaseTasks;
     }
 
-    public void initializeDatabase() {
-        try {
-            Files.createFile(Path.of(databaseFilename));
-        } catch (IOException e) {
-            System.out.println(
-                    "There was an error while trying to create the tasks file: " +
-                            e.getMessage());
-            System.out.println("The application will not proceed.");
-            System.exit(-1);
-        }
+    public void initializeDatabase() throws IOException {
+        Files.createFile(Path.of(databaseFilename));
+
     }
 
     public boolean checkDatabaseExists() {
         return Files.exists(Path.of(databaseFilename));
     }
 
-    public boolean persistDatabase() {
-        try {
-            String jsonData = objectMapper.writeValueAsString(databaseTasks);
-            Files.writeString(Path.of(databaseFilename), jsonData, StandardOpenOption.WRITE);
-            return true;
-        } catch (IOException e) {
-            System.out.println("There was an error while trying to persist" +
-                    "the tasks to the database: " + e.getMessage());
-            System.out.println("Your tasks will not be saved!");
-        }
-        return false;
+    public void persistDatabase() throws IOException {
+        String jsonData = objectMapper.writeValueAsString(databaseTasks);
+        Files.writeString(Path.of(databaseFilename), jsonData, StandardOpenOption.WRITE);
     }
 
-    public void loadDatabase() {
+    public void loadDatabase() throws IOException {
         final File databaseFile = new File(databaseFilename);
-        try {
-            databaseTasks = objectMapper.readValue(databaseFile, 
+        databaseTasks = objectMapper.readValue(databaseFile,
                 objectMapper.getTypeFactory().constructCollectionType(List.class, Task.class));
-        } catch (JsonParseException e) {
-            System.out.println(
-                    "There was an error while parsing the database: " +
-                            e.getMessage()
-            );
-        } catch (IOException e) {
-            System.out.println(
-                    "There was an error while reading the database: " +
-                            e.getMessage()
-            );
-        }
     }
 }
